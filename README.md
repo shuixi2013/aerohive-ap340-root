@@ -1,5 +1,6 @@
 # aerohive-ap340-root
-Python script to open up a root shell on the AeroHive AP340 with HiveOS &lt; 6.1R5
+Python script to change the root password on the AeroHive AP340 with HiveOS &lt; 6.1R5
+The result is direct root command line access via /bin/sh rather than the locked down AH CLI.
 
 No dependencies required. Just need the IP address of the AP340 and the code will set the root password to "password"
 
