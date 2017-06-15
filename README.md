@@ -2,8 +2,9 @@
 Python script to change the root password on the AeroHive AP340 with HiveOS < 6.1R5
 The result is direct root command line access via /bin/sh rather than the locked down AH CLI.
 
-## Setup
-No dependencies required. Just need the IP address of the AP340 and the code will set the root password to "password"
+## Dependencies
+Python3
+Urllib
 
 ## Recon
 
